@@ -1,0 +1,51 @@
+os: linux
+dist: focal
+arch: ppc64le
+language: shell
+
+services:
+    - docker
+
+jobs:
+  include:
+    - stage: first
+      name: first
+      script:
+        - touch rocky.txt
+        - echo "Hello Sai" > rocky.txt
+        - touch mahi.txt
+      workspaces:
+        create:
+          name: build_cache
+          paths:
+            - rocky.txt
+
+    - stage: second
+      name: second
+      workspaces:
+        use: build_cache
+      script:
+        - ls -ltr
+        - cat rocky.txt
+
+    - stage: third
+      name: third
+      script:
+        - ls -ltr
+        - touch naveen.txt
+        - echo "Hello Naveen" > naveen.txt
+      workspaces:
+        create:
+          name: package_build_folder_cache
+          paths:
+            - .
+        use: build_cache
+
+    - stage: fourth
+      name: fourth
+      workspaces:
+        use: package_build_folder_cache
+      script:
+        - ls -ltr
+        - cat rocky.txt
+        - cat naveen.txt
